@@ -16,12 +16,12 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public void dropTable() {
-
+        authorDao.dropTable();
     }
 
     @Override
     public void cleanTable() {
-
+        authorDao.cleanTable();
     }
 
     @Override
@@ -31,7 +31,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public List<Author> getAllAuthors() {
-        return List.of();
+         return authorDao.getAllAuthors();
     }
 
     @Override
@@ -41,7 +41,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public String updateAuthor(Long id, Author newAuthor) {
-        return "";
+        return authorDao.updateAuthor(id,newAuthor);
     }
 
     @Override
@@ -51,11 +51,12 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     public List<Author> sortByBirthDate() {
-        return List.of();
+        return authorDao.sortByBirthDate();
+
     }
 
     @Override
     public List<Author> groupByCountry() {
-        return List.of();
+        return authorDao.groupByCountry();
     }
 }

@@ -17,47 +17,46 @@ bookDao.createBook();
     @Override
     public String saveBook(Book book) {
         bookDao.saveBook(book);
-
         return "";
     }
 
     @Override
     public List<Book> getAll() {
-        return List.of();
+         return bookDao.getAll();
     }
 
     @Override
     public Book getById(Long id) {
-        return null;
+        return bookDao.getById(id);
     }
 
     @Override
     public String update(Long id, Book newBook) {
-        return "";
+        return bookDao.update(id, newBook);
     }
 
     @Override
     public String delete(Long id) {
-        return "";
+        return bookDao.delete(id);
     }
 
     @Override
     public List<Book> getBooksByAuthorId(Long id) {
-        return List.of();
+        return bookDao.getBooksByAuthorId(id);
     }
 
     @Override
     public List<String> getBooksByCountry(String country) {
-        return List.of();
+        return bookDao.getBooksByCountry(country);
     }
 
     @Override
     public List<String> getMaxPrice() {
-        return List.of();
+        return bookDao.getMaxPrice();
     }
 
     @Override
     public List<String> sumBookByAuthorId(Long id) {
-        return List.of();
+        return bookDao.sumBookByAuthorId(id);
     }
 }

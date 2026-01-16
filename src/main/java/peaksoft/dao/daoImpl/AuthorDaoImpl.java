@@ -5,6 +5,7 @@ import peaksoft.dao.AuthorDao;
 import peaksoft.models.Author;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AuthorDaoImpl implements AuthorDao {
@@ -32,11 +33,24 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public void dropTable() {
+        String sql = "drop table if exists authors cascade";
+        try (Statement statement = connection.createStatement()) {
+            statement.executeUpdate(sql);
+            System.out.println("Table authors dropped");
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
 
     }
 
     @Override
     public void cleanTable() {
+        String sql= "truncate table authors";
+        try( Statement statement = connection.createStatement()){
+            statement.executeUpdate(sql);
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
 
     }
 
@@ -61,7 +75,27 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public List<Author> getAllAuthors() {
-        return null;
+        List<Author> authors = new ArrayList<>();
+        String sql = """
+                select * from authors;
+                """;
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(sql);
+
+            while (resultSet.next()) {
+                Author author = new Author();
+                author.setId(resultSet.getLong("id"));
+                author.setFirstName(resultSet.getString("first_name"));
+                author.setLastName(resultSet.getString("last_name"));
+                author.setEmail(resultSet.getString("email"));
+                author.setCountry(resultSet.getString("country"));
+                author.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+                authors.add(author);
+            }
+        } catch (SQLException exception) {
+            System.out.println(exception.getMessage());
+        }
+        return authors;
     }
 
     @Override
@@ -89,8 +123,30 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public String updateAuthor(Long id, Author newAuthor) {
-        return "";
+        String sql = """
+                update authors\s
+                            set first_name = ?,\s
+                                last_name = ?,\s
+                                email = ?,\s
+                                country = ?,\s
+                                birth_date = ?\s
+                            where id = ?
+                """;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, newAuthor.getFirstName());
+            preparedStatement.setString(2, newAuthor.getLastName());
+            preparedStatement.setString(3, newAuthor.getEmail());
+            preparedStatement.setString(4, newAuthor.getCountry());
+            preparedStatement.setDate(5, Date.valueOf(newAuthor.getBirthDate()));
+
+            preparedStatement.setLong(6, id);
+            preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return "Success";
     }
+
 
     @Override
     public String deleteAuthor(Long id) {
@@ -106,11 +162,50 @@ preparedStatement.executeUpdate();
 
     @Override
     public List<Author> sortByBirthDate() {
-        return null;
+        String sql ="select * from authors order by birth_date";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            List<Author>authors=new ArrayList<>();
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                Author author=new Author();
+                author.setId(resultSet.getLong("id"));
+                author.setFirstName(resultSet.getString("first_name"));
+                author.setLastName(resultSet.getString("last_name"));
+                author.setCountry(resultSet.getString("country"));
+                author.setEmail(resultSet.getString("email"));
+                author.setBirthDate(resultSet.getDate("birth_date").toLocalDate());
+                authors.add(author);
+            }
+            return authors;
+        }catch (SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return List.of();
     }
 
     @Override
     public List<Author> groupByCountry() {
-        return null;
-    }
+        String sql = """
+        SELECT country, COUNT(*) AS author_count
+        FROM authors
+        GROUP BY country
+        ORDER BY country
+    """;
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            List<Author> authors = new ArrayList<>();
+
+            while (rs.next()) {
+                Author author = new Author();
+                author.setCountry(rs.getString("country"));
+                author.setId((long) rs.getInt("author_count"));
+                authors.add(author);
+            }
+
+            return authors;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }    }
 }
